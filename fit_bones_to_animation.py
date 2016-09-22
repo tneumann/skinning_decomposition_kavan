@@ -6,10 +6,16 @@ from cgtools.io.hdf5 import load_mesh_animation, save_mesh_animation
 from kavan import optimize_transformations, reconstruct_animation, residual
 
 
-def main(input_animation_with_bones, input_animation_to_fit, output_animation):
+@plac.annotations(
+    use_original_restshape=("use the original restshape estimated by kavan's algorithm", "flag", "r"),
+)
+def main(input_animation_with_bones, input_animation_to_fit, output_animation, use_original_restshape=False):
     _, tris0, verts0, W = load_mesh_animation(input_animation_with_bones, 'verts_restpose', 'bone_blendweights')
     num_bones = W.shape[0]
     verts, tris = load_mesh_animation(input_animation_to_fit)
+    if not use_original_restshape:
+        print "computing transformations relative to frame 0"
+        verts0 = verts[0]
     num_frames = verts.shape[0]
     A = np.vstack((verts[:,:,0], verts[:,:,1], verts[:,:,2]))
     assert np.all(tris0 == tris)
