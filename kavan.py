@@ -4,7 +4,6 @@ from collections import defaultdict
 from heapq import heappush, heappop
 import plac
 import numpy as np
-from scipy import weave
 from scipy import linalg
 from scipy.optimize import nnls
 
@@ -74,34 +73,10 @@ def initialize_bones(verts, verts0, tris, num_bones):
 
     def _defgradient_prediction_error(center_index, vert_index):
         e0 = verts[0, vert_index] - t_center[center_index, 0]
-        if 0:
-            # slow, python-only variant
-            verts_predicted = [np.dot(D, e0) + t
-                               for D, t in zip(D_center[center_index],
-                                               t_center[center_index])]
-            return ((np.array(verts_predicted) - verts[:,vert_index])**2).sum()
-        else:
-            # faster C implementation
-            Dc = D_center[center_index]
-            vc = verts[:, vert_index]
-            ts = t_center[center_index]
-            n = len(Dc)
-            err = weave.inline("""
-                double err = 0.0;
-                for(int i=0; i < n; i++) {
-                   double px = Dc(i,0,0) * e0(0) + Dc(i,0,1) * e0(1) + Dc(i,0,2) * e0(2);
-                   double py = Dc(i,1,0) * e0(0) + Dc(i,1,1) * e0(1) + Dc(i,1,2) * e0(2);
-                   double pz = Dc(i,2,0) * e0(0) + Dc(i,2,1) * e0(1) + Dc(i,2,2) * e0(2);
-                   double dx = (px - vc(i,0) + ts(i,0));
-                   double dy = (py - vc(i,1) + ts(i,1));
-                   double dz = (pz - vc(i,2) + ts(i,2));
-                   err += dx*dx + dy*dy + dz*dz;
-                }
-                return_val = err;
-                """,
-                ['n', 'Dc', 'vc', 'e0', 'ts'], 
-                type_converters=weave.converters.blitz)
-            return err
+        verts_predicted = [np.dot(D, e0) + t
+                            for D, t in zip(D_center[center_index],
+                                            t_center[center_index])]
+        return ((np.array(verts_predicted) - verts[:,vert_index])**2).sum()
 
     # add vertices of center triangles to the priority queues
     for ci in xrange(num_bones):
