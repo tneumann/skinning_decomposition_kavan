@@ -47,6 +47,7 @@ def main(sma_filename, out_hdf5_animation):
                     W[int(bone_index), i] = float(weight)
 
     num_bones, num_verts = W.shape
+    print("got %d bones" % num_bones)
     # bring T into correct shape
     T = np.array(T)
     # collection of row-major 4x4 matrices, throw away the last column (always 0,0,0,1)
@@ -58,21 +59,10 @@ def main(sma_filename, out_hdf5_animation):
     T = T.reshape(3*num_frames, 4*num_bones)
 
     verts0, tris = load_obj(obj_file)
-
-
-
     Arec, verts = kavan.reconstruct_animation(None, T, W, verts0)
-    vert_colors = kavan.vertex_weights_to_colors(W)
-
-    #from util import skinning
-    #print T_proper.shape
-    #print W.shape
-    #verts_rec_1 = skinning.blend_skinning(verts0, W.T, T_proper[4])
-    #print np.linalg.norm(verts[4] - verts_rec_1)
 
     save_mesh_animation(out_hdf5_animation, verts, tris, 
-                        scalar=vert_colors, bone_transformations=T_proper,
-                        bone_blendweights=W, verts_restpose=verts0)
+                        bone_transformations=T_proper, bone_blendweights=W, verts_restpose=verts0)
 
 
 if __name__ == "__main__":
