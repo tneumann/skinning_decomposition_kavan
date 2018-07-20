@@ -56,8 +56,7 @@ def initialize_bones(verts, verts0, tris, num_bones):
     for i, tri_index in enumerate(center_indices):
         for vi in tris[tri_index]: # every vertex in the triangle
             vertex_clusters[i].append(vi)
-            if vi in unassigned_vertex_indices:
-                unassigned_vertex_indices.remove(vi)
+            unassigned_vertex_indices.discard(vi)
 
     # calculate deformation gradient for each cluster center and each frame
     D_center = []
