@@ -6,6 +6,7 @@ from itertools import cycle
 import plac
 from mayavi import mlab
 from tvtk.api import tvtk
+from tvtk.common import configure_input, configure_input_data, configure_source_data
 from traits.api import HasTraits, Instance, on_trait_change, Enum, Button, Bool
 from traitsui.api import View, Group, Item
 from pyface.api import FileDialog, OK
@@ -51,8 +52,10 @@ def main(*anim_files):
 
         # setup mesh
         pd = tvtk.PolyData(points=verts[0], polys=tris)
-        normals = tvtk.PolyDataNormals(input=pd, compute_point_normals=False, splitting=False)
-        actor = tvtk.Actor(mapper=tvtk.PolyDataMapper(input=normals.output))
+        normals = tvtk.PolyDataNormals(compute_point_normals=True, splitting=False)
+        configure_input_data(normals, pd)
+        actor = tvtk.Actor(mapper=tvtk.PolyDataMapper())
+        configure_input(actor.mapper, normals)
         actor.mapper.immediate_mode_rendering = True
         actor.visibility = False
         fig.scene.add_actor(actor)
@@ -66,11 +69,11 @@ def main(*anim_files):
         glyph_pd = tvtk.PolyData()
         glyph = tvtk.Glyph3D()
         scale_factor = verts.reshape(-1, 3).ptp(0).max() * 0.1
-        verts.ptp(axis=0)
-        glyph.set(source = arrow.output, input = glyph_pd, scale_factor=scale_factor,
-                  scale_mode='scale_by_vector', color_mode='color_by_scalar')
-        glyph_actor = tvtk.Actor(mapper=tvtk.PolyDataMapper(input=glyph.output), visibility=False)
-        glyph.edit_traits()
+        glyph.set(scale_factor=scale_factor, scale_mode='scale_by_vector', color_mode='color_by_scalar')
+        configure_input_data(glyph, glyph_pd)
+        configure_source_data(glyph, arrow)
+        glyph_actor = tvtk.Actor(mapper=tvtk.PolyDataMapper(), visibility=False)
+        configure_input(glyph_actor.mapper, glyph)
         fig.scene.add_actor(glyph_actor)
 
         glyph_actors.append(glyph_actor)
@@ -83,7 +86,7 @@ def main(*anim_files):
     class Viewer(HasTraits):
         animator = Instance(Animator)
         visible = Enum(*range(len(pds)))
-        normals = Bool(False)
+        normals = Bool(True)
         export_off = Button
         restpose = Bool(True)
         show_scalars = Bool(True)
