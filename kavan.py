@@ -22,7 +22,7 @@ def initialize_bones(verts, verts0, tris, num_bones):
     # use the greedy algorithm for the p-center problem
     pts = verts0[tris].mean(axis=1)
     center_indices = []
-    dist_to_nearest_center = np.zeros(len(pts)) + np.inf
+    dist_to_nearest_center = np.full(len(pts), np.inf)
     while len(center_indices) < num_bones:
         if len(center_indices) == 0:
             # Kavan doesn't give any detail on which triangle to select
