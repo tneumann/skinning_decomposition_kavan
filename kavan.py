@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from collections import defaultdict
 from heapq import heappush, heappop
 import plac
@@ -159,7 +161,7 @@ def reduce_dim(X):
         Xrec = np.dot(B, C)
         error = np.linalg.norm(Xrec - X)
         if error < eps:
-            print "dimensionality reduced from %d to %d (error %f < eps %f)" % (X.shape[0], d, error, eps)
+            print("dimensionality reduced from %d to %d (error %f < eps %f)" % (X.shape[0], d, error, eps))
             break
     return B, C
 
@@ -175,7 +177,7 @@ def optimize_transformations(verts0, W, C):
     try:
         Tr = linalg.solve(np.dot(X, X.T), np.dot(C, X.T).T).T
     except linalg.LinAlgError:
-        print "singular matrix in optimize_transformations, using slower pseudo-inverse"
+        print("singular matrix in optimize_transformations, using slower pseudo-inverse")
         Tr = np.dot(
             np.linalg.pinv(np.dot(X, X.T)),
             np.dot(C, X.T).T).T
@@ -222,11 +224,9 @@ def optimize_weights(num_bones, Tr, C, verts0, K, nnls_soft_constr_weight=1.e+4)
         # with additional convexity constraint sum(k_weighs) = 1
         Sigma = Sigma[:,k_best]
         #k_weights0 = W[k_best, i]
-        #print "bef", np.linalg.norm(np.dot(Sigma, k_weights) - y)
         k_weights, _ = nnls(
             np.vstack((Sigma, nnls_soft_constr_weight * np.ones(K))),
             np.append(y, nnls_soft_constr_weight))
-        #print "aft", np.linalg.norm(np.dot(Sigma, k_weights) - y)
         new_W[k_best, i] = k_weights
     return new_W
 
@@ -266,26 +266,26 @@ def main(input_file, output_file, num_bones, K=4, verbose=False, num_it=15, full
     if full:
         B, C = np.eye(A.shape[0]), A
     else:
-        print "reducing dimensionality"
+        print("reducing dimensionality")
         B, C = reduce_dim(A)
-    print "place initial bones clusters"
+    print("place initial bones clusters")
     center_indices, vertex_label, W = initialize_bones(
         verts, verts0, tris, num_bones)
 
     for it in xrange(num_it):
-        print "iteration ", it
         Tr = optimize_transformations(verts0, W, C)
+        print("iteration % 3d: %f" % (it, residual(A, B, C, Tr, W, verts0)))
         if verbose:
-            print "optimize transformations", residual(A, B, C, Tr, W, verts0)
+            print("optimize transformations", residual(A, B, C, Tr, W, verts0))
         W = optimize_weights(num_bones, Tr, C, verts0, K)
         if verbose:
-            print "optimize weights", residual(A, B, C, Tr, W, verts0)
+            print("optimize weights", residual(A, B, C, Tr, W, verts0))
         verts0 = optimize_restpose(Tr, W, C)
         if verbose:
-            print "optimize restpose", residual(A, B, C, Tr, W, verts0)
+            print("optimize restpose", residual(A, B, C, Tr, W, verts0))
 
     Tr = optimize_transformations(verts0, W, C)
-    print "residual after optimization", residual(A, B, C, Tr, W, verts0)
+    print("residual after optimization", residual(A, B, C, Tr, W, verts0))
 
     Arec, verts_rec = reconstruct_animation(B, Tr, W, verts0)
     T_full = np.dot(B, Tr).reshape(3, num_frames, num_bones, 4).swapaxes(0, 2).swapaxes(0, 1)
