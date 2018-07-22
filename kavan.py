@@ -33,6 +33,8 @@ def initialize_bones(verts, verts0, tris, num_bones):
         else:
             i = np.argmax(dist_to_nearest_center)
         c = pts[i]
+        # We're using Euclidean distances here for simplicity, even though
+        # geodesic distances may work better
         d = ((pts - c)**2).sum(axis=-1)
         dist_to_nearest_center = np.minimum(d, dist_to_nearest_center)
         center_indices.append(i)
