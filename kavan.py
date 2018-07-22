@@ -9,6 +9,7 @@ from scipy.optimize import nnls
 
 from cgtools import vector as V
 from cgtools.io.hdf5 import load_mesh_animation, save_mesh_animation
+from cgtools.mesh.topology import get_vertex_rings
 
 
 
@@ -37,14 +38,7 @@ def initialize_bones(verts, verts0, tris, num_bones):
         center_indices.append(i)
 
     # construct an adjacency list for vertex neighborhood
-    vert_adjacency = defaultdict(list)
-    for i1, i2, i3 in tris:
-        vert_adjacency[i1].append(i2)
-        vert_adjacency[i2].append(i1)
-        vert_adjacency[i1].append(i3)
-        vert_adjacency[i3].append(i1)
-        vert_adjacency[i2].append(i3)
-        vert_adjacency[i3].append(i2)
+    vert_adjacency = get_vertex_rings(tris)
 
     # for each cluster center, prepare the priority queue 
     prio_queues = [[] for i in xrange(num_bones)]
