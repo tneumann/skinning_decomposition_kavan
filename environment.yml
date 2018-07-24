@@ -1,0 +1,15 @@
+name: skinning_decomposition_kavan
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - h5py>=2.7.1
+  - mayavi>=4.5.0
+  - vtk=6.3.0
+  - matplotlib>=2.1
+  - numpy>=1.13
+  - plac>=0.9.6
+  - pybind11>=2.2.2
+  - scipy>=1.1.0
+  - pip:
+    - git+https://github.com/tneumann/cgtools

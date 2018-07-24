@@ -21,6 +21,26 @@ In the above movie, each automatically found "body part" is colored differently 
 
 Essentially, the code here performs a task that is commonly called "skinning decomposition" in computer graphics. Skinning decomposition can be useful for quick and memory-efficient display of a given mesh animation on GPU's or in game engines, but it may also be used for more complex tasks such as rigid stabilization, sometimes also called pose normalization. Skinning decomposition can also be seen as a form of compression: each frame of the animation can be recreated only from the 3x4 transformation matrices of the (here, 18) body parts. 
 
+To reproduce the results shown above using Anaconda, do the following on the command line:
+```
+$ git clone http://github.com/tneumann/skinning_decomposition_kavan
+$ cd skinning_decomposition_kavan
+$ conda env create -f environment.yml
+$ source activate skinning_decomposition_kavan
+```
+Now we can download and unzip the sample data:
+```
+$ wget https://people.csail.mit.edu/sumner/research/deftransfer/data/horse-gallop.tgz
+$ tar xvzf horse-gallop.tgz
+$ rm horse-gallop/horse-gallop-reference.obj
+```
+And then convert the data, run the decomposition, and visualize the results using:
+```
+$ python convert_obj_sequence.py horse-gallop horse-gallop.h5 
+$ python decompose_kavan.py horse-gallop.h5 horse-gallop-bones.h5 18 -f
+$ python view_animation.py horse-gallop-bones.h5
+```
+
 # Scripts
 
 ## decompose_kavan.py
