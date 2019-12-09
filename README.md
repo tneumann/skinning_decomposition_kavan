@@ -47,7 +47,7 @@ $ python view_animation.py horse-gallop-bones.h5
 
 Implements the main algorithm. Some documentation of the command line parameters is available:
 ```
-$ python kavan.py --help
+$ python decompose_kavan.py --help
 ```
 
 ## convert_sma_data.py
