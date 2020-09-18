@@ -3,7 +3,7 @@ import plac
 
 from cgtools.io.hdf5 import load_mesh_animation, save_mesh_animation
 
-from kavan import optimize_transformations, reconstruct_animation, residual
+from decompose_kavan import optimize_transformations, reconstruct_animation, residual
 
 
 @plac.annotations(
